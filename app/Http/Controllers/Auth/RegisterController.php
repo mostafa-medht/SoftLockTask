@@ -68,6 +68,8 @@ class RegisterController extends Controller
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
+            'key' => base64_encode(openssl_random_pseudo_bytes(256)),
         ]);
+        // dd('**');
     }
 }
