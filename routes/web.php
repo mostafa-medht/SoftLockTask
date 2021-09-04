@@ -22,4 +22,6 @@ Auth::routes();
 Route::get('/home', 'HomeController@index')->name('home');
 
 Route::post('/convert', 'DocumentController@Convert')->name('file.convert');
+Route::post('/encrypt', 'DocumentController@encrypt')->name('file.encrypt');
+Route::post('/decrypt', 'DocumentController@decrypt')->name('file.decrypt');
 

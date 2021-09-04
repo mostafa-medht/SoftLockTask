@@ -26,4 +26,20 @@ class DocumentController extends Controller
             dd($contentDecrypted);
         }
     } // end of convert file
+
+    public function encrypt(Request $request)
+    {
+        $key = auth()->user()->key;
+        $contents= file_get_contents($request->file);
+        $contentEncrypted = encrypt($contents, $key);
+        return $contentEncrypted;
+    } // end of encrypt file
+
+    public function decrypt(Request $request)
+    {
+        $key = auth()->user()->key;
+        $contents= file_get_contents($request->file);
+        $contentDecrypted = decrypt($contents, $key);
+        return $contentDecrypted;
+    }
 } // end of controller
