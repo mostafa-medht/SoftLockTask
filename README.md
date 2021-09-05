@@ -11,6 +11,15 @@ Soft Lock Task
 - There is a Function to take plain text and encrypt it to get chirper based on (AES-256-CBC) with user logged key 
 - There is a function to take chirper version and decrpyt to plain text based on  (AES-256-CBC) with user logged key
 - User can download file (Encrypted or Decrypted) after process process 
+
+# How To Use As User
+- First, Login (or register as new user if you don't have account).
+- After Login you will be redirected to home page. 
+- Second Browse to your computer to select your file to process. 
+- Click On load button to get info about file you get (File name, File Size, File Extension).
+- Third, Choose what you whant to do (encrpt or decrypt) then click convert button.
+- Fourth, Click Download button to get the result file after converting process.
+
 ## Run the project
 1. Clone repository
 
