@@ -1,6 +1,25 @@
 # SoftLockTask
 Soft Lock Task 
 
+# Here's what I have done
+
+- Application has simple authentication system with middlware 
+- User can browse to any file and upload it 
+- User can click on load button on main window to get file name, file size in kB and extension 
+- I provide 256 key base key for each user when register for first time 
+- Case of 256 key base key for each user to provide level of security if any security issues happens, Only one user affected by attack not all of content when using public key 
+- There is a Function to take plain text and encrypt it to get chirper based on (AES-256-CBC) with user logged key 
+- There is a function to take chirper version and decrpyt to plain text based on  (AES-256-CBC) with user logged key
+- User can download file (Encrypted or Decrypted) after process process 
+
+# How To Use As User
+- First, Login (or register as new user if you don't have account).
+- After Login you will be redirected to home page. 
+- Second Browse to your computer to select your file to process. 
+- Click On load button to get info about file you get (File name, File Size, File Extension).
+- Third, Choose what you whant to do (encrpt or decrypt) then click convert button.
+- Fourth, Click Download button to get the result file after converting process.
+
 ## Run the project
 1. Clone repository
 
