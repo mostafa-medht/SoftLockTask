@@ -8,14 +8,14 @@ trait EncryptDecryptTrait {
     public $ciphertext = '';
     public $cipher = "aes-256-cbc";
 
-    public function encrypt($plainText, $key){
+    public function encrypt($data, $key){
         global $cipher;
-        return openssl_encrypt($plainText, $cipher, $key, $options=0, '', $tag);
+        return openssl_encrypt($data, $cipher, $key, $options=0, '', $tag);
     }
 
-    function decrypt($cipherText, $key){
+    function decrypt($data, $key){
         global $cipher;
-        return openssl_decrypt($cipherText, $cipher, $key, $options=0, '', '');
+        return openssl_decrypt($data, $cipher, $key, $options=0, '', '');
     }
 
 }

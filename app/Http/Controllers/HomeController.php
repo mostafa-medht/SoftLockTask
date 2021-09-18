@@ -24,5 +24,10 @@ class HomeController extends Controller
     public function index()
     {
         return view('home');
-    }
+    } // end of index
+
+    public function convert()
+    {
+        return view('convert');
+    } // end of convert
 }

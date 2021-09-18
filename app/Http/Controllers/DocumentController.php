@@ -2,30 +2,170 @@
 
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Storage;
+use Pion\Laravel\ChunkUpload\Handler\HandlerFactory;
+use Pion\Laravel\ChunkUpload\Receiver\FileReceiver;
 use App\Http\Traits\EncryptDecryptTrait;
 
 class DocumentController extends Controller
 {
     use EncryptDecryptTrait;
 
-    public function Convert(Request $request)
+    public function __construct()
     {
-        if ($request->ajax()) {
-            $key = auth()->user()->key;
-            // dump($request);
-            $contents= file_get_contents($_FILES['file']['tmp_name']);
-            $contentEncrypted = encrypt($contents, $key);
-            dump('contentEncrypted');
-            dump($contentEncrypted);
-            $contentDecrypted = decrypt($contentEncrypted, $key);
-            dump('contentDecrypted');
-            header('Content-Disposition: attachment; filename="contentDecrypted.txt"');
-            header('Content-Type: text/plain'); # Don't use application/force-download - it's not a real MIME type, and the Content-Disposition header is sufficient
-            header('Content-Length: ' . strlen($contentDecrypted));
-            header('Connection: close');
-            dd($contentDecrypted);
-        }
+        $this->middleware('auth');
+
+    } //end of constructor
+
+    public function convertIndex()
+    {
+        return view('convert');
+    } // end of convert index
+
+    public function convert(Request $request)
+    {
+
+        $key = auth()->user()->key;
+        // dump($request);
+        $content = file_get_contents($_FILES['file']['tmp_name']);
+        dump($content);
+        $fileName = $_FILES['file']['name'];
+        dump($fileName);
+        $contentEncrypted = encrypt($content, $key);
+        dump('contentEncrypted');
+        dump($contentEncrypted);
+        $contentDecrypted = decrypt($contentEncrypted, $key);
+        dump('contentDecrypted');
+        // header('Content-Disposition: attachment; filename="contentDecrypted.txt"');
+        // header('Content-Type: text/plain'); # Don't use application/force-download - it's not a real MIME type, and the Content-Disposition header is sufficient
+        // header('Content-Length: ' . strlen($contentDecrypted));
+        // header('Connection: close');
+        dd($contentDecrypted);
     } // end of convert file
+
+    public function uploadLargeFiles(Request $request)
+    {
+        $key = auth()->user()->key;
+
+        $receiver = new FileReceiver('file', $request, HandlerFactory::classFromRequest($request));
+
+        if (!$receiver->isUploaded()) {
+            // file not uploaded
+        }
+        $fileReceived = $receiver->receive(); // receive file
+
+        // if ($fileReceived->isFinished()) { // file uploading is complete / all chunks are uploaded
+        //     // $fileName = $_FILES['file']['name'];
+        //     $file = $fileReceived->getFile(); // get file
+        //     $content = file_get_contents($file);
+        //     $contentEncrypted = encrypt($content, $key);
+        //     $extension = $file->getClientOriginalExtension();
+        //     $fileName = str_replace('.'.$extension, '', $file->getClientOriginalName()); //file name without extenstion
+        //     $fileName .= ".".uniqid('', true).".".$extension; // a unique file name
+
+        //     // $fileDestination = $fileName;
+        //     $pathTO = public_path()."\\uploads\\";
+
+        //     // $disk = Storage::disk(config('filesystems.default'));
+        //     $convertedFile = fopen($pathTO.$fileName, "wb") or die("Unable to open file!");
+        //     fwrite($convertedFile, $contentEncrypted);
+        //     fclose($convertedFile);
+        //     // $pathFrom = $disk->putFileAs('videos', $file, $fileName);
+        //     // return redirect()->route('file.forceDonwload', $pathTO.$fileName);
+        //     // move_uploaded_file($pathFrom.$fileName, $pathTO.$fileName);
+        //     // delete chunked file
+        //     unlink($file->getPathname());
+        //     // return [
+        //     //     'path' => asset('storage/' . $pathFrom),
+        //     //     'filename' => $fileName
+        //     // ];
+        // }
+        // otherwise return percentage informatoin
+        // $handler = $fileReceived->handler();
+        // return [
+        //     'done' => $handler->getPercentageDone(),
+        //     'status' => true
+        // ];
+
+    } // end of upload large file
+
+    public function convertToEncrypt(Request $request)
+    {
+        // dd($request);
+        $key = auth()->user()->key;
+        $fileName = $_FILES['file']['name'];
+        $fileSize = $_FILES['file']['size'];
+        $fileError = $_FILES['file']['error'];
+        $fileExtention = explode('.', $fileName);
+        $fileActualExtention = strtolower(end($fileExtention));
+        $content = file_get_contents($_FILES['file']['tmp_name']);
+        $filePath = public_path()."/uploads/";
+        $contentEncrypted = encrypt($content, $key);
+
+
+            if ($fileError === 0) { // handle file error
+                if ($fileSize < 10000000) { // handle file size
+                    $newfileNameWithExt = $fileExtention[0].".".uniqid('', true).".".$fileActualExtention;
+                    $fileDestination = $filePath.$newfileNameWithExt;
+                    $convertedFile = fopen($fileDestination, "wb") or die("Unable to open file!");
+                    fwrite($convertedFile, $contentEncrypted);
+                    fclose($convertedFile);
+                    // return redirect()->route('file.forceDonwload', $newfileNameWithExt);
+                    return  response($newfileNameWithExt);
+                }else{
+                    return response("Your File Is Too Big");
+                }
+            }else {
+                return response("There was an error uploading your file!");
+            }
+        // }
+        // else {
+        //     echo "You Can Not Upload Files Of This Type! ";
+        // }
+
+    } // end of convert to encrypt
+
+    public function convertToDecrypt(Request $request)
+    {
+        $key = auth()->user()->key;
+        $fileName = $_FILES['file']['name'];
+        $fileSize = $_FILES['file']['size'];
+        $fileError = $_FILES['file']['error'];
+        $fileExtention = explode('.', $fileName);
+        $fileActualExtention = strtolower(end($fileExtention));
+        $content = file_get_contents($_FILES['file']['tmp_name']);
+        $filePath = public_path()."/uploads/";
+        $contentDecrypted = decrypt($content, $key);
+
+        if ($fileError === 0) { // handle file error
+            if ($fileSize < 10000000) { // handle file size
+                $newfileNameWithExt = $fileExtention[0].".".uniqid('', true).".".$fileActualExtention;
+                $fileDestination = $filePath.$newfileNameWithExt;
+                $convertedFile = fopen($fileDestination, "wb") or die("Unable to open file!");
+                fwrite($convertedFile, $contentDecrypted);
+                fclose($convertedFile);
+                return  response($newfileNameWithExt);
+                // return redirect()->route('file.forceDonwload', $newfileNameWithExt);
+            }else{
+                return response("Your File Is Too Big");
+            }
+        }else {
+            return response("There was an error uploading your file!");
+        }
+        // }else {
+        //     echo "You Can Not Upload Files Of This Type! ";
+        // }
+
+    } // end of convert to decrypt
+
+    public static function forceDonwload(string $newfileNameWithExt = null)
+    {
+        $pathToFile = public_path("uploads\\".$newfileNameWithExt);
+        return response()->download($pathToFile, $name?? null, $headers??[]);
+    } // end of force download
 
     public function encrypt(Request $request)
     {
