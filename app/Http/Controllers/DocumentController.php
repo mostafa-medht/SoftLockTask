@@ -164,7 +164,7 @@ class DocumentController extends Controller
     public static function forceDonwload(string $newfileNameWithExt = null)
     {
         $pathToFile = public_path("uploads\\".$newfileNameWithExt);
-        return response()->download($pathToFile, $name?? null, $headers??[]);
+        return response()->download($pathToFile, $name?? null, $headers??[])->deleteFileAfterSend();
     } // end of force download
 
     public function encrypt(Request $request)
