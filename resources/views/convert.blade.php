@@ -20,15 +20,15 @@
                                 <button type='button' id='btnLoad' class="btn btn-light ml-4">Load File</button>
                             </div>
                         </div>
-                        {{-- <div class="col-md-12">
+                        <div class="col-md-12">
                             <div class="progress">
                                 <div class="progress-bar progress-bar-striped progress-bar-animated"
-                                role="progressbar" aria-valuenow="75" aria-valuemin="0"
-                                aria-valuemax="100" style="width: 75%; height: 100%">
+                                role="progressbar" aria-valuenow="0" aria-valuemin="0"
+                                aria-valuemax="100" style="width: 0%; height: 100%">
                                     <div class="percent">0%</div>
                                 </div>
                             </div>
-                        </div> --}}
+                        </div>
                     </div>
                     {{-- <div class="row">
 
@@ -179,10 +179,10 @@
                 element.setAttribute('download', filename);
             } // end of download function
 
-            $('#fileinput').on('change', function (event) {
-                $('#fileinfo').html('');
-                $('#download').addClass('d-none');
-            })
+            // $('#fileinput').on('change', function (event) {
+            //     $('#fileinfo').html('');
+            //     $('#download').addClass('d-none');
+            // })
             // document.getElementById("download").addEventListener("click", function(){
             //     // Generate download of hello.txt file with some content
             //     var text = document.getElementById("output-to-download").value;
@@ -193,57 +193,57 @@
 
         });
 
-        // let browseFile = $("#fileinput");
-        // let resumable = new Resumable({
-        //     target: '{{ route('files.upload.large') }}',
-        //     query:{_token:'{{ csrf_token() }}'} ,// CSRF token
-        //     fileType: ['mp4'],
-        //     headers: {
-        //         'Accept' : 'application/json'
-        //     },
-        //     chunkSize : 10 * 1024 * 1024,
-        //     testChunks: false,
-        //     throttleProgressCallbacks: 1,
-        // }); // Intailize new object of Resumble
+        let browseFile = $("#fileinput");
+        let resumable = new Resumable({
+            target: '{{ route('files.upload.large') }}',
+            query:{_token:'{{ csrf_token() }}'} ,// CSRF token
+            fileType: ['mp4'],
+            headers: {
+                'Accept' : 'application/json'
+            },
+            chunkSize : 10 * 1024 * 1024,
+            testChunks: false,
+            throttleProgressCallbacks: 1,
+        }); // Intailize new object of Resumble
 
-        // resumable.assignBrowse(browseFile[0]);
+        resumable.assignBrowse(browseFile[0]);
 
-        // resumable.on('fileAdded', function (file) { // trigger when file picked
-        //     showProgress();
-        //     resumable.upload() // to actually start uploading.
-        // });
+        resumable.on('fileAdded', function (file) { // trigger when file picked
+            showProgress();
+            resumable.upload() // to actually start uploading.
+        });
 
-        // resumable.on('fileProgress', function (file) { // trigger when file progress update
-        //     updateProgress(Math.floor(file.progress() * 100));
-        // });
+        resumable.on('fileProgress', function (file) { // trigger when file progress update
+            updateProgress(Math.floor(file.progress() * 100));
+        });
 
-        // resumable.on('fileSuccess', function (file, response) { // trigger when file upload complete
-        //     response = JSON.parse(response)
-        //     $('#videoPreview').attr('src', response.path);
-        //     $('.card-footer').show();
-        // });
+        resumable.on('fileSuccess', function (file, response) { // trigger when file upload complete
+            response = JSON.parse(response)
+            $('#videoPreview').attr('src', response.path);
+            $('.card-footer').show();
+        });
 
-        // resumable.on('fileError', function (file, response) { // trigger when there is any error
-        //     alert('file uploading error.')
-        // });
+        resumable.on('fileError', function (file, response) { // trigger when there is any error
+            alert('file uploading error.')
+        });
 
-        // // Progress Bar Section
-        // let progress = $('.progress');
-        // function showProgress() {
-        //     progress.find('.progress-bar').css('width', '0%');
-        //     progress.find('.progress-bar').html('0%');
-        //     progress.find('.progress-bar').removeClass('bg-success');
-        //     progress.show();
-        // } // show progress function
+        // Progress Bar Section
+        let progress = $('.progress');
+        function showProgress() {
+            progress.find('.progress-bar').css('width', '0%');
+            progress.find('.progress-bar').html('0%');
+            progress.find('.progress-bar').removeClass('bg-success');
+            progress.show();
+        } // show progress function
 
-        // function updateProgress(value) {
-        //     progress.find('.progress-bar').css('width', `${value}%`)
-        //     progress.find('.progress-bar').html(`${value}%`)
-        // } // update progress function
+        function updateProgress(value) {
+            progress.find('.progress-bar').css('width', `${value}%`)
+            progress.find('.progress-bar').html(`${value}%`)
+        } // update progress function
 
-        // function hideProgress() {
-        //     progress.hide();
-        // } // hide progress function
+        function hideProgress() {
+            progress.hide();
+        } // hide progress function
     </script>
     {{-- end of script --}}
 
