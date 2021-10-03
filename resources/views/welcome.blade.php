@@ -80,7 +80,7 @@
             @endif
             <div class="content">
                 <div class="title m-b-md">
-                    Soft Lock Tec Task
+                    File Encryption & Decryption
                 </div>
 
                 <div class="links">

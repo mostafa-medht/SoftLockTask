@@ -11,7 +11,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="file">Please Select File</label>
+                                <label for="file" id="file-input-label">Please Select File</label>
                                 <input type="file" name="file" class="form-control-file btn btn-light" id="fileinput">
                             </div>
                         </div>
@@ -20,8 +20,8 @@
                                 <button type='button' id='btnLoad' class="btn btn-light ml-4">Load File</button>
                             </div>
                         </div>
-                        <div class="col-md-12">
-                            <div class="progress">
+                        <div class="col-md-12 my-3">
+                            <div class="progress d-none">
                                 <div class="progress-bar progress-bar-striped progress-bar-animated"
                                 role="progressbar" aria-valuenow="0" aria-valuemin="0"
                                 aria-valuemax="100" style="width: 0%; height: 100%">
@@ -61,7 +61,7 @@
             </div>
             {{-- end of card body --}}
             <div class="card-footer py-0 my-0">
-                <h6 id="fileinfo"></h6>
+                <h6 id="fileinfo" class="alert rounded"></h6>
                 <p class="erorr"></p>
                 {{-- <video id="videoPreview" src="" controls style="width: 100%; height: auto"></video> --}}
             </div>
@@ -102,8 +102,23 @@
             fileinfo.innerHTML = info;
         } // file info function
 
+        function checkboxCheck() {
+            if ($("input[type='checkbox']:checked").length > 1 ){
+                alert('Please Chosse Only one Of CheckBox');
+                return false;
+            }
+            else if($("input[type='checkbox']:checked").length >0){
+                // $('#convert').removeClass('d-none');
+                return true;
+            }
+            else{
+                alert('Please Check One Of CheckBox (Encrypt Or Decrypt)');
+                return false;
+            }
+        } // Check For Check Boxs
+
         $(document).ready(function(){
-        // jQuery methods go here...
+            // jQuery methods go here...
             $('#convert').on('click', function name(e) {
                 // Check If one Of Check Box Selected
                 var validity = checkboxCheck();
@@ -179,10 +194,10 @@
                 element.setAttribute('download', filename);
             } // end of download function
 
-            // $('#fileinput').on('change', function (event) {
-            //     $('#fileinfo').html('');
-            //     $('#download').addClass('d-none');
-            // })
+            $('#fileinput').on('change', function (event) {
+                $('#fileinfo').html('');
+                $('#download').addClass('d-none');
+            })
             // document.getElementById("download").addEventListener("click", function(){
             //     // Generate download of hello.txt file with some content
             //     var text = document.getElementById("output-to-download").value;
@@ -190,16 +205,16 @@
             //     download(filename, text);
             // }, false); // end of
 
-
         });
 
         let browseFile = $("#fileinput");
         let resumable = new Resumable({
             target: '{{ route('files.upload.large') }}',
             query:{_token:'{{ csrf_token() }}'} ,// CSRF token
-            fileType: ['mp4'],
+            // fileType: ['mp4'],
             headers: {
-                'Accept' : 'application/json'
+                'Accept' : 'application/json',
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             chunkSize : 10 * 1024 * 1024,
             testChunks: false,
@@ -207,10 +222,22 @@
         }); // Intailize new object of Resumble
 
         resumable.assignBrowse(browseFile[0]);
+        // console.log(resumable.assignBrowse(browseFile[0]));
 
         resumable.on('fileAdded', function (file) { // trigger when file picked
+            // $('#file-input-label').text(input.files[0].name);
+            // var file = input.files[0];
+            console.log(browseFile);
+
+            console.log(file);
             showProgress();
-            resumable.upload() // to actually start uploading.
+            var validity = checkboxCheck();
+            if (!validity) {
+            // console.log(validity);
+                $('.progress').addClass('d-none');
+                return;
+            } // chexk if check box valid value
+            resumable.upload(); // to actually start uploading.
         });
 
         resumable.on('fileProgress', function (file) { // trigger when file progress update
@@ -219,17 +246,18 @@
 
         resumable.on('fileSuccess', function (file, response) { // trigger when file upload complete
             response = JSON.parse(response)
-            $('#videoPreview').attr('src', response.path);
-            $('.card-footer').show();
+            // $('#videoPreview').attr('src', response.path);
+            $('.card-footer').find('#fileinfo').text('File Uploaded Successfully');
         });
 
         resumable.on('fileError', function (file, response) { // trigger when there is any error
-            alert('file uploading error.')
+            alert('file uploading error.');
         });
 
         // Progress Bar Section
         let progress = $('.progress');
         function showProgress() {
+            progress.removeClass('d-none');
             progress.find('.progress-bar').css('width', '0%');
             progress.find('.progress-bar').html('0%');
             progress.find('.progress-bar').removeClass('bg-success');
